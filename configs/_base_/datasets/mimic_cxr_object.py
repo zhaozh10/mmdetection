@@ -31,30 +31,25 @@ classes = (
     "carina",
     "abdomen"
 )
-img_prefix='../data/mimic-cxr-resized/'
-train_ann_root='../data/mimic-cxr-object/train_cxr_object_token.json'
-val_ann_root='../data/mimic-cxr-object/val_cxr_object_token.json'
-test_ann_root='../data/mimic-cxr-object/test_cxr_object_token.json'
+# img_prefix='../data/mimic-cxr-resized/'
+# train_ann_root='../data/mimic-cxr-object/train_cxr_object_token.json'
+# val_ann_root='../data/mimic-cxr-object/val_cxr_object_token.json'
+# test_ann_root='../data/mimic-cxr-object/test_cxr_object_token.json'
+
+img_prefix='/public_bme/data/physionet.org/files/mimic-cxr-jpg/2.0.0/'
+train_ann_root='/public_bme/data/physionet.org/files/mimic-cxr-object/train_cxr_object_token.json'
+val_ann_root='/public_bme/data/physionet.org/files/mimic-cxr-object/val_cxr_object_token.json'
+test_ann_root='/public_bme/data/physionet.org/files/mimic-cxr-object/test_cxr_object_token.json'
 IMAGE_INPUT_SIZE=512
+
 # mean = 0.471
 # std = 0.302
-
-# A.LongestMaxSize(max_size=IMAGE_INPUT_SIZE, interpolation=cv2.INTER_AREA),
-#             A.ColorJitter(hue=0.0),
-#             A.GaussNoise(),
-#             # randomly (by default prob=0.5) translate and rotate image
-#             # mode and cval specify that black pixels are used to fill in newly created pixels
-#             # translate between -2% and 2% of the image height/width, rotate between -2 and 2 degrees
-#             A.Affine(mode=cv2.BORDER_CONSTANT, cval=0, translate_percent=(-0.02, 0.02), rotate=(-2, 2)),
-#             # PadIfNeeded: pads both sides of the shorter edge with 0's (black pixels)
-#             A.PadIfNeeded(min_height=IMAGE_INPUT_SIZE, min_width=IMAGE_INPUT_SIZE, border_mode=cv2.BORDER_CONSTANT),
-#             A.Normalize(mean=mean, std=std),
 
 albu_train_transforms = [
     dict(
         type='LongestMaxSize',
         max_size=IMAGE_INPUT_SIZE,
-        interpolation="cv2.INTER_AREA"
+        interpolation=3
         ),
     dict(
         type='ColorJitter',
@@ -65,7 +60,7 @@ albu_train_transforms = [
         ),
     dict(
         type='Affine', 
-        mode="cv2.BORDER_CONSTANT", 
+        mode=0, 
         cval=0, 
         translate_percent=(-0.02, 0.02),
         rotate=(-2,2),
@@ -74,31 +69,21 @@ albu_train_transforms = [
         type="PadIfNeeded",
         min_height=IMAGE_INPUT_SIZE,
         min_width=IMAGE_INPUT_SIZE,
-        border_mode="cv2.BORDER_CONSTANT"
+        border_mode=0
     ),
-    # dict(
-    #     type="Normalize",
-    #     mean=mean,
-    #     std=std,
-    # )
 ]
 albu_val_transforms = [
     dict(
         type='LongestMaxSize',
         max_size=IMAGE_INPUT_SIZE,
-        interpolation="cv2.INTER_AREA"
+        interpolation=3
         ),
     dict(
         type="PadIfNeeded",
         min_height=IMAGE_INPUT_SIZE,
         min_width=IMAGE_INPUT_SIZE,
-        border_mode="cv2.BORDER_CONSTANT"
+        border_mode=0
     ),
-    # dict(
-    #     type="Normalize",
-    #     mean=mean,
-    #     std=std,
-    # )
 ]
 backend_args = None
 train_pipeline = [
@@ -109,7 +94,7 @@ train_pipeline = [
         transforms=albu_train_transforms,
         bbox_params=dict(
             type='BboxParams',
-            format='coco',
+            format='pascal_voc',
             label_fields=['gt_bboxes_labels']
         ),
         keymap={
@@ -118,7 +103,8 @@ train_pipeline = [
             'gt_bboxes': 'bboxes'
         },
         skip_img_without_anno=True),
-    dict(type='PackDetInputs')
+    dict(type='PackDetInputs',meta_keys=('img_id', 'img_path', 'img_shape',
+                   'report','gt_bboxes_labels',"gt_bboxes"))
 ]
 val_pipeline=[
     dict(type='LoadImageFromFile', backend_args=backend_args),
@@ -128,7 +114,7 @@ val_pipeline=[
         transforms=albu_val_transforms,
         bbox_params=dict(
             type='BboxParams',
-            format='coco',
+            format='pascal_voc',
             label_fields=['gt_bboxes_labels']
         ),
         keymap={
@@ -137,7 +123,8 @@ val_pipeline=[
             'gt_bboxes': 'bboxes'
         },
         skip_img_without_anno=True),
-    dict(type='PackDetInputs')
+    dict(type='PackDetInputs',meta_keys=('img_id', 'img_path', 'img_shape',
+                   'report','gt_bboxes_labels',"gt_bboxes"))
 ]
 
 """Args:
@@ -184,7 +171,7 @@ train_dataloader = dict(
     )
 
 val_dataloader = dict(
-    batch_size=1,
+    batch_size=16,
     num_workers=2,
     persistent_workers=True,
     drop_last=False,
@@ -201,7 +188,7 @@ val_dataloader = dict(
     )
 
 test_dataloader = dict(
-    batch_size=1,
+    batch_size=16,
     num_workers=2,
     persistent_workers=True,
     drop_last=False,
