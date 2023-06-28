@@ -24,5 +24,5 @@ __all__ = [
     'MultiImageMixDataset', 'OpenImagesDataset', 'OpenImagesChallengeDataset',
     'AspectRatioBatchSampler', 'ClassAwareSampler', 'MultiSourceSampler',
     'GroupMultiSourceSampler', 'BaseDetDataset', 'CrowdHumanDataset',
-    'Objects365V1Dataset', 'Objects365V2Dataset','MIMIC_Object_dataset'
+    'Objects365V1Dataset', 'Objects365V2Dataset','MIMIC_Object_Dataset'
 ]
