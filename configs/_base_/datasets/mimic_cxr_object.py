@@ -37,9 +37,9 @@ classes = (
 # test_ann_root='../data/mimic-cxr-object/test_cxr_object_token.json'
 
 img_prefix='/public_bme/data/physionet.org/files/mimic-cxr-jpg/2.0.0/'
-train_ann_root='/public_bme/data/physionet.org/files/mimic-cxr-object/train_cxr_object_token.json'
-val_ann_root='/public_bme/data/physionet.org/files/mimic-cxr-object/val_cxr_object_token.json'
-test_ann_root='/public_bme/data/physionet.org/files/mimic-cxr-object/test_cxr_object_token.json'
+train_ann_root='/public_bme/data/physionet.org/files/mimic-cxr-object/train_cxr_object.json'
+val_ann_root='/public_bme/data/physionet.org/files/mimic-cxr-object/val_cxr_object.json'
+test_ann_root='/public_bme/data/physionet.org/files/mimic-cxr-object/test_cxr_object.json'
 IMAGE_INPUT_SIZE=512
 backend_args = None
 # mean = 0.471
