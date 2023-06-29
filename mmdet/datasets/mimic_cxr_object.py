@@ -90,7 +90,7 @@ class MIMIC_Object_Dataset(BaseDetDataset):
 
         del self.coco
 
-        return data_list
+        return data_list[:1000]
 
         
         
@@ -150,6 +150,7 @@ class MIMIC_Object_Dataset(BaseDetDataset):
             instance['bbox_label'] = self.cat2label[ann['category_id']]
             instance['caption']=ann['caption']
             instance['input_ids']=ann['input_ids']
+            instance['iscrowd']=0
 
             if ann.get('segmentation', None):
                 instance['mask'] = ann['segmentation']

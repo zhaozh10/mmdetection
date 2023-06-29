@@ -41,91 +41,109 @@ train_ann_root='/public_bme/data/physionet.org/files/mimic-cxr-object/train_cxr_
 val_ann_root='/public_bme/data/physionet.org/files/mimic-cxr-object/val_cxr_object_token.json'
 test_ann_root='/public_bme/data/physionet.org/files/mimic-cxr-object/test_cxr_object_token.json'
 IMAGE_INPUT_SIZE=512
-
+backend_args = None
 # mean = 0.471
 # std = 0.302
 
-albu_train_transforms = [
-    dict(
-        type='LongestMaxSize',
-        max_size=IMAGE_INPUT_SIZE,
-        interpolation=3
-        ),
-    dict(
-        type='ColorJitter',
-        hue=0.0,
-        ),
-    dict(
-        type='GaussNoise',
-        ),
-    dict(
-        type='Affine', 
-        mode=0, 
-        cval=0, 
-        translate_percent=(-0.02, 0.02),
-        rotate=(-2,2),
-    ),
-    dict(
-        type="PadIfNeeded",
-        min_height=IMAGE_INPUT_SIZE,
-        min_width=IMAGE_INPUT_SIZE,
-        border_mode=0
-    ),
-]
-albu_val_transforms = [
-    dict(
-        type='LongestMaxSize',
-        max_size=IMAGE_INPUT_SIZE,
-        interpolation=3
-        ),
-    dict(
-        type="PadIfNeeded",
-        min_height=IMAGE_INPUT_SIZE,
-        min_width=IMAGE_INPUT_SIZE,
-        border_mode=0
-    ),
-]
-backend_args = None
 train_pipeline = [
     dict(type='LoadImageFromFile', backend_args=backend_args),
-    dict(type='LoadAnnotations', with_bbox=True, with_mask=False),
-    dict(
-        type='Albu',
-        transforms=albu_train_transforms,
-        bbox_params=dict(
-            type='BboxParams',
-            format='pascal_voc',
-            label_fields=['gt_bboxes_labels']
-        ),
-        keymap={
-            'img': 'image',
-            'gt_masks': 'masks',
-            'gt_bboxes': 'bboxes'
-        },
-        skip_img_without_anno=True),
-    dict(type='PackDetInputs',meta_keys=('img_id', 'img_path', 'img_shape',
-                   'report','gt_bboxes_labels',"gt_bboxes"))
+    dict(type='LoadAnnotations', with_bbox=True),
+    dict(type='Resize', scale=(512, 512), keep_ratio=True),
+    dict(type='RandomFlip', prob=0.5),
+    dict(type='PackDetInputs',
+        meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape','scale_factor','flip', 'flip_direction')
+        )
 ]
-val_pipeline=[
+val_pipeline = [
     dict(type='LoadImageFromFile', backend_args=backend_args),
-    dict(type='LoadAnnotations', with_bbox=True, with_mask=False),
+    dict(type='Resize', scale=(512, 512), keep_ratio=True),
+    # If you don't have a gt annotation, delete the pipeline
+    dict(type='LoadAnnotations', with_bbox=True),
     dict(
-        type='Albu',
-        transforms=albu_val_transforms,
-        bbox_params=dict(
-            type='BboxParams',
-            format='pascal_voc',
-            label_fields=['gt_bboxes_labels']
-        ),
-        keymap={
-            'img': 'image',
-            'gt_masks': 'masks',
-            'gt_bboxes': 'bboxes'
-        },
-        skip_img_without_anno=True),
-    dict(type='PackDetInputs',meta_keys=('img_id', 'img_path', 'img_shape',
-                   'report','gt_bboxes_labels',"gt_bboxes"))
+        type='PackDetInputs',
+        meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape','scale_factor')
+        )
 ]
+
+
+# albu_train_transforms = [
+#     dict(
+#         type='LongestMaxSize',
+#         max_size=IMAGE_INPUT_SIZE,
+#         interpolation=3
+#         ),
+#     dict(
+#         type='ColorJitter',
+#         hue=0.0,
+#         ),
+#     dict(
+#         type='GaussNoise',
+#         ),
+#     dict(
+#         type='Affine', 
+#         mode=0, 
+#         cval=0, 
+#         translate_percent=(-0.02, 0.02),
+#         rotate=(-2,2),
+#     ),
+#     dict(
+#         type="PadIfNeeded",
+#         min_height=IMAGE_INPUT_SIZE,
+#         min_width=IMAGE_INPUT_SIZE,
+#         border_mode=0
+#     ),
+# ]
+# albu_val_transforms = [
+#     dict(
+#         type='LongestMaxSize',
+#         max_size=IMAGE_INPUT_SIZE,
+#         interpolation=3
+#         ),
+#     dict(
+#         type="PadIfNeeded",
+#         min_height=IMAGE_INPUT_SIZE,
+#         min_width=IMAGE_INPUT_SIZE,
+#         border_mode=0
+#     ),
+# ]
+
+# train_pipeline = [
+#     dict(type='LoadImageFromFile', backend_args=backend_args),
+#     dict(type='LoadAnnotations', with_bbox=True, with_mask=False),
+#     dict(
+#         type='Albu',
+#         transforms=albu_train_transforms,
+#         bbox_params=dict(
+#             type='BboxParams',
+#             format='pascal_voc',
+#             label_fields=['gt_bboxes_labels']
+#         ),
+#         keymap={
+#             'img': 'image',
+#             'gt_bboxes': 'bboxes'
+#         },),
+#     dict(type='PackDetInputs',meta_keys=('img_id', 'img_path', 'img_shape',
+#                    'report','gt_bboxes_labels',"gt_bboxes"))
+# ]
+# val_pipeline=[
+#     dict(type='LoadImageFromFile', backend_args=backend_args),
+#     dict(type='LoadAnnotations', with_bbox=True, with_mask=False),
+#     dict(
+#         type='Albu',
+#         transforms=albu_val_transforms,
+#         bbox_params=dict(
+#             type='BboxParams',
+#             format='pascal_voc',
+#             label_fields=['gt_bboxes_labels']
+#         ),
+#         keymap={
+#             'img': 'image',
+#             'gt_bboxes': 'bboxes'
+#         },
+#         ),
+#     dict(type='PackDetInputs',meta_keys=('img_id', 'img_path', 'img_shape',
+#                    'report','gt_bboxes_labels',"gt_bboxes"))
+# ]
 
 """Args:
     ann_file (str, optional): Annotation file path. Defaults to ''.
