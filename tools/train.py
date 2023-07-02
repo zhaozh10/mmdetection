@@ -10,8 +10,6 @@ from mmengine.registry import RUNNERS
 from mmengine.runner import Runner
 
 from mmdet.utils import setup_cache_size_limit_of_dynamo
-os.environ["OMP_NUM_THREADS"] = "2"
-os.environ["MKL_NUM_THREADS"] = "2"
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')

@@ -1,0 +1,3 @@
+GPUS=4 GPUS_PER_NODE=4 CPUS_PER_TASK=2 tools/slurm_train.sh bme_gpu dino_coco configs/dino/dino-4scale_r50_8xb2-12e_coco.py 
+
+GPUS=4 GPUS_PER_NODE=4 CPUS_PER_TASK=2 tools/slurm_train.sh bme_gpu dino_coco configs/dino/dino-4scale_r50_8xb2-12e_mimic.py 

@@ -5,7 +5,7 @@ mean = 0.471
 std = 0.302
 model = dict(
     type='DINO',
-    num_queries=900,  # num_matching_queries
+    num_queries=300,  # num_matching_queries
     with_box_refine=True,
     as_two_stage=True,
     data_preprocessor=dict(
@@ -95,7 +95,7 @@ optim_wrapper = dict(
     type='OptimWrapper',
     optimizer=dict(
         type='AdamW',
-        lr=0.0001,  # 0.0002 for DeformDETR
+        lr=1e-4,  # 0.0002 for DeformDETR
         weight_decay=0.0001),
     clip_grad=dict(max_norm=0.1, norm_type=2),
     paramwise_cfg=dict(custom_keys={'backbone': dict(lr_mult=0.1)})
@@ -115,7 +115,7 @@ param_scheduler = [
         begin=0,
         end=max_epochs,
         by_epoch=True,
-        milestones=[11],
+        milestones=[5],
         gamma=0.1)
 ]
 
